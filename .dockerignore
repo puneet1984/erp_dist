@@ -1,8 +1,12 @@
 .git
 .gitignore
 Dockerfile
+Dockerfile.prod
 docker-compose.yml
+docker-compose.prod.yml
 .dockerignore
+.env
+.env.production
 logs/*
 uploads/*
 scripts/*
