@@ -1,0 +1,30 @@
+i. To diagnose intra-uterine and/or ectopic pregnancy and confirm viability. ii. Estimation of gestational age (dating). iii. Detection of number of fetuses and their chorionicity. iv. Suspected pregnancy with IUCD in-situ or suspected pregnancy following contraceptive failure/MTP failure. v. Vaginal bleeding/leaking. vi. Follow-up of cases of abortion. vii. Assessment of cervical canal and diameter of internal os. viii. Discrepancy between uterine size and period of amenorrhea. ix. Any suspected adenexal or uterine pathology/abnormality. x. Detection of chromosomal abnormalities, fetal structural defects and other abnormalities and their follow-up. xi. To evaluate fetal presentation and position. xii. Assessment of liquor amnii. xiii. Preterm labor / preterm premature rupture of membranes. xiv. Evaluation of placental position, thickness, grading and abnormalities (placenta praevia, retro placental hemorrhage, abnormal adherence etc.). xv. Evaluation of umbilical cord – presentation, insertion, nuchal encirclement, number of vessels and presence of true knot. xvi. Evaluation of previous Caesarean Section scars. xvii. Evaluation of fetal growth parameters, fetal weight and fetal well being. xviii. Color flow mapping and duplex Doppler studies. xix. Ultrasound guided procedures such as medical termination of pregnancy, external cephalic version etc. and their follow-up. xx. Adjunct to diagnostic and therapeutic invasive interventions such as chorionic villus sampling (CVS), amniocenteses, fetal blood sampling, fetal skin biopsy, amnio-infusion, intrauterine infusion, placement of shunts etc. xxi. Observation of intra-partum events. xxii. Medical/surgical conditions complicating pregnancy. xxiii. Research/scientific studies in recognized institutions
+
+
+
+ // <div>
+// <h4>Indication</h4>
+                                i. To diagnose intra-uterine and/or ectopic pregnancy and confirm viability.
+                                ii. Estimation of gestational age (dating).
+                                iii. Detection of number of fetuses and their chorionicity.
+                                iv. Suspected pregnancy with IUCD in-situ or suspected pregnancy following contraceptive failure/MTP failure.
+                                v. Vaginal bleeding/leaking.
+                                vi. Follow-up of cases of abortion.
+                                vii. Assessment of cervical canal and diameter of internal os.
+                                viii. Discrepancy between uterine size and period of amenorrhea.
+                                ix. Any suspected adenexal or uterine pathology/abnormality.
+                                x. Detection of chromosomal abnormalities, fetal structural defects and other abnormalities and their follow-up.
+                                xi. To evaluate fetal presentation and position.
+                                xii. Assessment of liquor amnii.
+                                xiii. Preterm labor / preterm premature rupture of membranes.
+                                xiv. Evaluation of placental position, thickness, grading and abnormalities (placenta praevia, retro placental hemorrhage, abnormal adherence etc.).
+                                xv. Evaluation of umbilical cord – presentation, insertion, nuchal encirclement, number of vessels and presence of true knot.
+                                xvi. Evaluation of previous Caesarean Section scars.
+                                xvii. Evaluation of fetal growth parameters, fetal weight and fetal well being.
+                                xviii. Color flow mapping and duplex Doppler studies.
+                                xix. Ultrasound guided procedures such as medical termination of pregnancy, external cephalic version etc. and their follow-up.
+                                xx. Adjunct to diagnostic and therapeutic invasive interventions such as chorionic villus sampling (CVS), amniocenteses, fetal blood sampling, fetal skin biopsy, amnio-infusion, intrauterine infusion, placement of shunts etc.
+                                xxi. Observation of intra-partum events.
+                                xxii. Medical/surgical conditions complicating pregnancy.
+                                xxiii. Research/scientific studies in recognized institutions
+// </div>

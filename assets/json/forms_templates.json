@@ -1,0 +1,13 @@
+{
+
+  "hospital_admission_form": {
+    "title": "Hospital Admission Form",
+    "heading": {
+      "hospital_name_hindi": "माहेश्वरी नर्सिंग होम",
+      "address": "163, भगत सिंग मार्ग, देवास (म.प्र.) फ़ोन - 07272-221223,252849,7828485666",
+      "form_title_english": "ADMISSION FORM AND VOLUNTARY AND INFORMED CONSENT FOR ADMISSION AND TREATMENT",
+      "form_title_hindi": "(भर्ती पत्र एवं भर्ती हेतु स्वैच्छिक और सूचित सहमति पत्र)",
+      "legal_reference": "(Under Section 13 of The Indian Contract Act, Indian Penal Code and Indian Medical Council (Professional Conduct and Ethics) Regulations 2002)"
+    }
+  }
+}

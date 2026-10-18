@@ -1,0 +1,273 @@
+.container-fluid{
+    padding: 0 15px;
+    max-width: 1200px;
+}
+.reports-filters {
+    background: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+.form-group select, 
+.form-group input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.date-range {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    align-items: end;
+}
+
+.date-presets {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.date-presets .btn {
+    min-width: 100px;
+    text-align: center;
+    border-radius: 20px;
+    padding: 6px 15px;
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
+    border: none;
+}
+
+/* Custom colors for each date preset button */
+.date-presets .yesterday {
+    background-color: #FF6B6B;
+    color: white;
+}
+
+.date-presets .this-week {
+    background-color: #4ECDC4;
+    color: black;
+}
+
+.date-presets .current-month {
+    background-color: #45B7D1;
+    color: black;
+}
+
+.date-presets [data-days="7"] {
+    background-color: #96CEB4;
+    color: brown;
+}
+
+.date-presets [data-days="30"] {
+    background-color: #88D8B0;
+    color: black;
+}
+
+.date-presets [data-days="90"] {
+    background-color: #7DC8E8;
+    color: white;
+}
+
+.date-presets [data-days="180"] {
+    background-color: #6B95CC;
+    color: white;
+}
+
+.date-presets .last-month {
+    background-color: #9B89B6;
+    color: white;
+}
+
+.date-presets .current-year {
+    background-color: #5C6BC0;
+    color: white;
+}
+
+/* Hover effects */
+.date-presets .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    filter: brightness(110%);
+}
+
+/* Active state */
+.date-presets .btn.active {
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+    transform: translateY(1px);
+    filter: brightness(90%);
+}
+
+.date-preset-btn {
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f8f9fa;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+}
+
+.date-preset-btn:hover {
+    background: #e9ecef;
+    border-color: #ccc;
+}
+
+.date-preset-btn.active {
+    background-color: var(--bs-primary);
+    color: white;
+    border-color: var(--bs-primary);
+}
+
+.btn-outline-secondary.active {
+    background-color: #6c757d !important;
+    color: white !important;
+    border-color: #6c757d !important;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: #007bff;
+    color: white;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+    border: 1px solid #6c757d;
+    
+}
+
+.btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.report-output {
+    background: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.chart-container {
+    position: relative;
+    height: 400px;
+    width: 100%;
+    margin-bottom: 30px;
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+.table {
+    max-width: 100%;
+    width: 50%;
+    border-collapse: collapse;
+}
+
+.table th, .table td {
+    padding: 12px;
+    border: 1px solid #dee2e6;
+}
+
+.table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.table tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+.table tr:hover {
+    background: #f2f2f2;
+}
+.table td{
+    vertical-align: middle;
+    text-align: left;
+}
+tfoot tr {
+    font-weight: 600;
+    background: #e9ecef;
+}
+
+/* Override and complement Bootstrap styles */
+
+/* Add subtle shadows to cards */
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* Improve table responsiveness */
+.table-responsive {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+/* Custom scrollbar for table */
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .card {
+        box-shadow: none !important;
+        border: none !important;
+    }
+    
+    .table {
+        border: 1px solid #dee2e6 !important;
+    }
+}

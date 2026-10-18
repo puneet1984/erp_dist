@@ -1,0 +1,130 @@
+/* Base bill container */
+.bill-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* Print button styling */
+.no-print {
+    text-align: center;
+    margin: 20px 0;
+    position: fixed;
+    bottom: 20px;
+    width: 100%;
+    left: 0;
+    z-index: 1000;
+}
+
+.no-print button {
+    padding: 10px 30px;
+    font-size: 16px;
+}
+
+/* Print specific styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .print-area {
+        margin: 0;
+        padding: 0;
+    }
+    
+    .bill-container {
+        max-width: 210mm;
+        max-height: 148mm;
+        margin: 0;
+        padding: 5mm;
+        box-shadow: none;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        background: white;
+        font-size: 7pt;
+    }
+
+    @page {
+        size: A4;
+        margin: 5mm;
+    }
+
+    /* Row heights */
+    .header-row { 
+        height: 20%;
+        margin-bottom: 2mm;
+    }
+    
+    .details-row { 
+        height: 20%;
+        margin-bottom: 2mm;
+        clear: both;
+    }
+    
+    .services-row { 
+        height: 45%;
+        clear: both;
+        margin-top: 2mm;
+    }
+    
+    .signature-row { 
+        height: 15%;
+        clear: both;
+        margin-top: 3mm;
+        margin-bottom: 0;
+    }
+
+    /* Table styles */
+    .table>:not(caption)>*>* {
+        padding: 2px 4px;
+    }
+
+    /* Card styles */
+    .card {
+        margin-bottom: 3mm;
+    }
+
+    .card-body {
+        padding: 1mm;
+    }
+
+    .card-title {
+        font-size: 9pt;
+    }
+
+    /* Logo and header */
+    .logo {
+        width: 15mm;
+        height: auto;
+    }
+
+    /* Force backgrounds */
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Hide scrollbars */
+    body::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Prevent page breaks */
+    .header-row,
+    .details-row,
+    .services-row,
+    .signature-row {
+        page-break-inside: avoid;
+    }
+
+    /* Amount in words */
+    .amount-in-words {
+        margin-bottom: 2mm;
+    }
+}

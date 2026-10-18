@@ -1,0 +1,106 @@
+.action-bar {
+    background: #fff;
+    padding: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+#action-bar-links {
+    display: inline-block;
+    padding: 8px 15px;
+    color: #333;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+#action-bar-links:hover {
+    background: #f0f0f0;
+}
+
+#action-bar-links a {
+    color: inherit;
+    text-decoration: none;
+}
+
+#action-bar-links i {
+    margin-right: 5px;
+}
+
+.dropdown {
+    margin-left: auto;
+    position: relative;
+}
+
+.dropbtn {
+    padding: 8px 15px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    color: black;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background: #fff;
+    min-width: 200px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    z-index: 1000;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown-content a {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
+    transition: background 0.2s;
+}
+
+.dropdown-content a:hover {
+    background: #f0f0f0;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: #ddd;
+    margin: 5px 0;
+}
+
+/* Header styles */
+.header {
+    background: #fff;
+    padding: 15px 20px;
+    margin: -20px -20px 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 1.5em;
+    padding-left: 10px;
+}
+
+.header a {
+    color: #0056b3;
+    text-decoration: none;
+    padding-right: 10px;
+}
+
+.header a:hover {
+    text-decoration: underline;
+}

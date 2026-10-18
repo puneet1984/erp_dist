@@ -1,0 +1,145 @@
+<?php
+
+require_once __DIR__.'/../../config/config.php';
+
+$db = getPdoConnection();
+
+class PermissionManager
+{
+    private static $instance;
+    private $permissions = [];
+    private $rolePermissions = [];
+    private $userPermissions = [];
+    private $cache = [];
+
+    // Permission mapping constants
+    public const PERMISSION_MAP = [
+        'view' => 1,
+        'create' => 2,
+        'edit' => 4,
+        'delete' => 8,
+        'print' => 16,
+        'approve' => 32,
+        'reject' => 64,
+        'export' => 128,
+    ];
+
+    private function __construct()
+    {
+        $this->loadPermissions();
+    }
+
+    public static function getInstance()
+    {
+        if (null === self::$instance) {
+            self::$instance = new self();
+        }
+
+        return self::$instance;
+    }
+
+    private function loadPermissions()
+    {
+        if (!isset($_SESSION['permissions']) || !isset($_SESSION['role'])) {
+            error_log('No permissions or role found in session');
+
+            return;
+        }
+
+        $this->permissions = $_SESSION['permissions'];
+        $this->rolePermissions = $this->getRolePermissions($_SESSION['role']);
+    }
+
+    private function getRolePermissions($roleId)
+    {
+        // Get role permissions from database
+        $sql = 'SELECT permissions FROM roles WHERE role_id = ?';
+        try {
+            global $db;
+            $stmt = $db->prepare($sql);
+            $stmt->setFetchMode(PDO::FETCH_ASSOC);
+            $stmt->execute([$roleId]);
+            $result = $stmt->fetch();
+
+            return $result ? json_decode($result['permissions'], true) : [];
+        } catch (Exception $e) {
+            error_log('Error loading role permissions: '.$e->getMessage());
+
+            return [];
+        }
+    }
+
+    public function can($module, $action)
+    {
+        // Cache key for this permission check
+        $cacheKey = "{$module}:{$action}";
+
+        // Return cached result if exists
+        if (isset($this->cache[$cacheKey])) {
+            return $this->cache[$cacheKey];
+        }
+
+        // Debug logging
+        error_log("Checking permission for module: {$module}, action: {$action}");
+        error_log('Role: '.$_SESSION['role'].', Role name: '.$_SESSION['role_name']);
+
+        // Admin override
+        if ($this->isAdmin()) {
+            $this->cache[$cacheKey] = true;
+
+            return true;
+        }
+
+        // Check role-based permissions first
+        if (isset($this->rolePermissions[$module])
+            && in_array($action, $this->rolePermissions[$module])) {
+            $this->cache[$cacheKey] = true;
+
+            return true;
+        }
+
+        // Then check user-specific permissions
+        if (isset($this->permissions[$module])
+            && in_array($action, $this->permissions[$module])) {
+            $this->cache[$cacheKey] = true;
+
+            return true;
+        }
+
+        $this->cache[$cacheKey] = false;
+
+        return false;
+    }
+
+    public function require($module, $action)
+    {
+        if (!$this->can($module, $action)) {
+            // Check for session timeout first
+            if (!checkSessionTimeout()) {
+                redirectToLogin('timeout=1');
+            }
+            header('Location: /erp/modules/auth/unauthorized.php');
+            exit;
+        }
+    }
+
+    public function requireMultiple($permissions)
+    {
+        foreach ($permissions as $permission) {
+            $this->require($permission['module'], $permission['action']);
+        }
+    }
+
+    private function isAdmin()
+    {
+        return isset($_SESSION['role'])
+               && ('admin' === $_SESSION['role']
+                || 1 === $_SESSION['role']
+                || 'admin' === $_SESSION['role_name']);
+    }
+
+    public function clearCache()
+    {
+        $this->cache = [];
+    }
+}

@@ -1,0 +1,364 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: #f5f5f5;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+button {
+    background: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #45a049;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.data-table th,
+.data-table td {
+    padding: 8px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.data-table th {
+    background: #f5f5f5;
+}
+
+.billing-summary {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.summary-details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.summary-details .form-group {
+    margin-bottom: 10px;
+}
+
+.summary-details label {
+    font-weight: bold;
+    color: #495057;
+}
+
+.summary-details span {
+    display: inline-block;
+    padding: 5px 10px;
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    min-width: 100px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Form Section Layout */
+.form-section {
+    margin-bottom: 25px;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 5px;
+}
+
+.form-section h3 {
+    margin-bottom: 15px;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+}
+
+/* Auto spacing for form inputs */
+.form-row.auto-spacing {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.form-row.auto-spacing .form-group {
+    flex: 1;
+}
+
+.form-row.auto-spacing input,
+.form-row.auto-spacing select {
+    height: 38px;
+    box-sizing: border-box;
+}
+
+/* Ensure consistent widths for specific inputs */
+.form-row.auto-spacing input[name="age"] {
+    width: 100%;
+}
+
+.form-row.auto-spacing input[name="contact"] {
+    width: 100%;
+}
+
+.form-row.auto-spacing select[name="gender"] {
+    width: 100%;
+}
+
+/* Form Group Widths */
+.form-group.full {
+    width: 100%;
+}
+
+.form-group.half {
+    width: calc(50% - 10px);
+}
+
+.form-group.third {
+    width: calc(33.33% - 14px);
+}
+
+.form-group.quarter {
+    width: calc(25% - 15px);
+}
+
+/* Input Field Specific Widths */
+input[name="name"] {
+    width: 100%;
+    max-width: 400px; /* For 100 characters */
+}
+
+input[name="age"] {
+    width: 80px; /* For 3 digits */
+}
+
+input[name="contact"] {
+    width: 130px; /* For 10 digits */
+}
+
+input[name="aadhar_number"] {
+    width: 150px; /* For 12 digits */
+}
+
+input[name="abha_id"] {
+    width: 170px; /* For 14 digits */
+}
+
+input[name="ayushmaan_id"] {
+    width: 200px; /* For 20 characters */
+}
+
+textarea[name="address"] {
+    height: 60px;
+    resize: vertical;
+}
+
+#company_field select {
+    margin-bottom: 5px;
+}
+
+.next-id-display {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+}
+
+.next-id-display label {
+    font-weight: bold;
+    color: #495057;
+    margin: 0;
+}
+
+.next-id-display span {
+    font-family: monospace;
+    font-size: 1.1em;
+    color: #198754;
+}
+
+/* Adjust form-row for name fields */
+.form-row .form-group input[name="first_name"],
+.form-row .form-group input[name="last_name"] {
+    width: 100%;
+}
+
+.form-row .form-group input[name="middle_name"] {
+    width: 100%;
+}
+
+/* Input Field Sizing System */
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="tel"],
+.form-group input[type="email"],
+.form-group input[type="date"],
+.form-group select {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+/* Specific input size classes */
+.input-xs { width: 80px !important; }  /* For small numbers, codes */
+.input-sm { width: 120px !important; } /* For age, phone, zip */
+.input-md { width: 200px !important; } /* For names, emails */
+.input-lg { width: 300px !important; } /* For addresses */
+.input-xl { width: 100% !important; }  /* Full width */
+
+/* Input type specific sizes */
+.form-group input[type="date"] { width: 150px !important; }
+.form-group input[type="tel"] { width: 130px !important; }
+.form-group input[name="age"] { width: 80px !important; }
+.form-group select[name="gender"] { width: 100px !important; }
+.form-group input[name="aadhar_number"] { width: 150px !important; }
+.form-group input[name="abha_id"] { width: 150px !important; }
+.form-group input[name="ayushmaan_id"] { width: 180px !important; }
+.form-group select[name="payment_type_id"] { width: 200px !important; }
+
+/* Amount inputs */
+.form-group input[type="number"] {
+    text-align: right;
+    width: 120px !important;
+}
+
+/* Name fields */
+.form-group input[name="first_name"],
+.form-group input[name="last_name"] {
+    width: 180px !important;
+}
+
+.form-group input[name="middle_name"] {
+    width: 150px !important;
+}
+
+/* Relation dropdown */
+.form-group select[name="relation"] {
+    width: 80px !important;
+}
+
+/* Search fields */
+.search-form input[type="text"] {
+    width: 250px !important;
+}
+
+/* Textarea sizes */
+.form-group textarea {
+    width: 95%;
+    min-height: 80px;
+    resize: vertical;
+}
+
+.patient-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.patient-id {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #0056b3;
+}
+
+.registration-date {
+    color: #6c757d;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn-cancel {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #6c757d;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.btn-cancel:hover {
+    background: #5a6268;
+}
+
+.tax-info {
+    font-size: 0.9em;
+    color: #666;
+    margin: 0 10px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding: 5px 0;
+}
+
+#taxSection {
+    border-top: 1px dashed #ddd;
+    margin-top: 10px;
+    padding-top: 10px;
+}

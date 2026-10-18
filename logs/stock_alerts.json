@@ -1,0 +1,62 @@
+[
+    {
+        "timestamp": "2026-02-22 20:01:45",
+        "message": "Starting stock alert check"
+    },
+    {
+        "timestamp": "2026-02-22 20:01:45",
+        "message": "ERROR: Unknown column 'sal.last_sent_at' in 'field list'"
+    },
+    {
+        "timestamp": "2026-02-22 20:01:48",
+        "message": "Starting stock alert check"
+    },
+    {
+        "timestamp": "2026-02-22 20:01:48",
+        "message": "ERROR: Unknown column 'sal.last_sent_at' in 'field list'"
+    },
+    {
+        "timestamp": "2026-02-22 20:02:49",
+        "message": "Starting stock alert check"
+    },
+    {
+        "timestamp": "2026-02-22 20:02:49",
+        "message": "ERROR: Unknown column 'item_name' in 'field list'"
+    },
+    {
+        "timestamp": "2026-02-22 20:03:23",
+        "message": "Starting stock alert check"
+    },
+    {
+        "timestamp": "2026-02-22 20:03:23",
+        "message": "ERROR: Unknown column 'item_name' in 'field list'"
+    },
+    {
+        "timestamp": "2026-02-22 20:04:24",
+        "message": "Starting stock alert check"
+    },
+    {
+        "timestamp": "2026-02-22 20:04:25",
+        "message": "Created\/Updated 180 low stock alerts"
+    },
+    {
+        "timestamp": "2026-02-22 20:04:25",
+        "message": "Created 27 expiry alerts"
+    },
+    {
+        "timestamp": "2026-02-22 20:04:25",
+        "message": "Completed successfully"
+    },
+    {
+        "timestamp": "2026-02-23 00:00:03",
+        "message": "Starting stock alert check"
+    },
+    {
+        "timestamp": "2026-02-23 00:00:05",
+        "message": "Created 81 expiry alerts"
+    },
+    {
+        "timestamp": "2026-02-23 00:00:05",
+        "message": "Completed successfully"
+    }
+]

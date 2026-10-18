@@ -1,0 +1,310 @@
+<?php
+define('SECURE_ACCESS', true);
+require_once '../../includes/core.php';
+
+// Check billing permissions
+if (!checkPermission('bills', 'create')) {
+    header('Location: /hospital/modules/auth/unauthorized.php');
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $conn = getDbConnection();
+    $patient_id = $_POST['patient_id'];
+    $bill_id = generateHospitalBillId($patient_id, $conn);
+    $services = json_decode($_POST['services'], true);
+
+    // Start transaction
+    $conn->begin_transaction();
+
+    try {
+        // Insert main bill
+        $stmt = $conn->prepare("INSERT INTO bills (bill_id, bill_date, patient_id, doctor_id, dept_id, 
+                               total_amount, discount, final_amount, payment_status, payment_type_id) 
+                               VALUES (?, CURDATE(), ?, ?, ?, ?, ?, ?, ?, ?)");
+
+        $total = array_sum(array_column($services, 'total'));
+        $discount = isset($_POST['discount']) ? $_POST['discount'] : 0;
+        $final = $total - $discount;
+        $payment_type_id = $_POST['payment_type_id'];
+        $status = 'PENDING';
+
+        $stmt->bind_param(
+            "ssiidddsi",
+            $bill_id,
+            $patient_id,
+            $_POST['doctor_id'],
+            $_POST['dept_id'],
+            $total,
+            $discount,
+            $final,
+            $status,
+            $payment_type_id
+        );
+        $stmt->execute();
+
+        // Insert bill items
+        $stmt = $conn->prepare("INSERT INTO bill_items (bill_id, service_id, quantity, unit_price, total) 
+                               VALUES (?, ?, ?, ?, ?)");
+
+        foreach ($services as $service) {
+            $stmt->bind_param(
+                "siids",
+                $bill_id,
+                $service['service_id'],
+                $service['quantity'],
+                $service['price'],
+                $service['total']
+            );
+            $stmt->execute();
+        }
+
+        $conn->commit();
+        echo json_encode(['status' => 'success', 'bill_id' => $bill_id]);
+
+    } catch (Exception $e) {
+        $conn->rollback();
+        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+    }
+    exit;
+}
+
+$conn = getDbConnection();
+// Modify the doctors query to include charge_per_visit
+$doctors = $conn->query("SELECT d.*, dept.name as dept_name 
+                        FROM doctors d 
+                        JOIN departments dept ON d.dept_id = dept.dept_id 
+                        WHERE d.status = 'ACTIVE' 
+                        ORDER BY d.name")->fetch_all(MYSQLI_ASSOC);
+
+?>
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Generate Bill</title>
+	<link rel="stylesheet" href="../../assets/css/generate_bill.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+	<script src="../../assets/js/tax_calculator.js"></script>
+	<script src="../../assets/js/generate_bill.js"></script>
+</head>
+
+<body>
+	<?php require_once '../../includes/simple_action_bar.php'; ?>
+
+	<div class="container">
+		<h2>Generate Bill</h2>
+		<form id="billForm">
+			<!-- Patient Details Section -->
+			<div class="form-row">
+				<div class="form-group">
+					<label>Patient ID:</label>
+					<div class="input-group">
+						<input type="text" name="patient_id" required placeholder="Enter Patient ID"
+							onblur="searchPatient()" title="Enter valid Patient ID">
+					</div>
+				</div>
+				<div class="form-group">
+					<label>Patient Name:</label>
+					<input type="text" id="patientName" readonly class="readonly-field"
+						placeholder="Will be auto-populated">
+				</div>
+			</div>
+
+			<!-- Doctor and Service Selection -->
+			<div class="service-row">
+				<div class="form-group">
+					<label>Doctor:</label>
+					<select name="doctor_id" required
+						onchange="updateDepartment(this.value); showConsultationCharge(this)">
+						<option value="">Select Doctor</option>
+						<?php foreach ($doctors as $doctor): ?>
+						<option
+							value="<?= $doctor['doctor_id'] ?>"
+							data-dept="<?= $doctor['dept_id'] ?>"
+							data-charge="<?= $doctor['charge_per_visit'] ?>">
+							Dr.
+							<?= htmlspecialchars($doctor['name']) ?>
+							(<?= htmlspecialchars($doctor['dept_name']) ?>)
+							<!-- - Consultation: -->
+							<!-- ₹<?= number_format($doctor['charge_per_visit'], 2) ?>
+							-->
+						</option>
+						<?php endforeach; ?>
+					</select>
+				</div>
+				<div class="form-group">
+					<label>Select Service:</label>
+					<!-- <select id="serviceSelect" style="width: 100%;" disabled></select> -->
+					<select id="serviceSelect" style="width: 100%;"></select>
+				</div>
+			</div>
+			<input type="hidden" name="dept_id" id="dept_id">
+
+			<!-- Services List -->
+			<div id="services">
+				<h3>Selected Services</h3>
+				<div class="service-list">
+					<div class="service-header">
+						<span>Service</span>
+						<span>Quantity</span>
+						<span>Price</span>
+						<span>Total</span>
+						<span>Action</span>
+					</div>
+					<div id="servicesList"></div>
+				</div>
+			</div>
+
+			<!-- Billing Summary -->
+			<div class="billing-summary">
+				<div class="billing-row">
+					<div class="form-group">
+						<label>Subtotal:</label>
+						<span id="subtotal">0.00</span>
+					</div>
+					<div id="taxSection" style="display: none;">
+						<div class="summary-row">
+							<label>Total GST:</label>
+							<span id="totalTax">0.00</span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label>Discount Amount:</label>
+						<input type="number" name="discount" value="0" min="0" style="width: 100px;"
+							onchange="calculateFromAmount(this.value)">
+					</div>
+					<div class="form-group">
+						<label>Discount Percentage:</label>
+						<div class="percent-input">
+							<input type="number" name="discount_percent" value="0" min="0" max="100" step="0.01"
+								style="width: 100px;" onchange="calculateFromPercent(this.value)">
+						</div>
+					</div>
+				</div>
+				<div class="total-row">
+					<div class="form-group">
+						<label>Total Amount:</label>
+						<span id="totalAmount" class="total">0.00</span>
+					</div>
+				</div>
+
+				<div class="payment-section">
+					<h3>Payment Details</h3>
+					<div class="form-group">
+						<label>Payment Type:</label>
+						<select name="payment_type_id" required onchange="handlePaymentType(this.value)">
+							<?php
+                            $payment_types = $conn->query("SELECT * FROM payment_types ORDER BY type_name");
+while ($type = $payment_types->fetch_assoc()) {
+    $selected = ($type['type_name'] === 'CASH') ? 'selected' : '';
+    echo "<option value='" . $type['payment_type_id'] . "' $selected>"
+        . str_replace('_', ' ', $type['type_name']) . "</option>";
+}
+?>
+						</select>
+					</div>
+
+					<!-- Company Credit Details -->
+					<div id="company_details" class="payment-details" style="display:none;">
+						<div class="form-group">
+							<label>Company Name:</label>
+							<select name="company_name" required>
+								<option value="">Select Company</option>
+								<?php
+    $companies = $conn->query("SELECT DISTINCT company_name FROM patients WHERE company_name IS NOT NULL ORDER BY company_name");
+while ($company = $companies->fetch_assoc()) {
+    echo "<option value='" . htmlspecialchars($company['company_name']) . "'>" . htmlspecialchars($company['company_name']) . "</option>";
+}
+?>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Reference:</label>
+							<input type="text" name="company_ref">
+						</div>
+					</div>
+
+					<!-- Card Payment Details -->
+					<div id="card_details" class="payment-details" style="display:none;">
+						<div class="form-group">
+							<label>Card Type:</label>
+							<select name="card_type" onchange="calculateCardFee()">
+								<option value="debit">Debit Card (1.5% fee)</option>
+								<option value="credit">Credit Card (3.5% fee)</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Convenience Fee:</label>
+							<span id="convenience_fee">0.00</span>
+						</div>
+						<div class="form-group">
+							<label>Final Amount (with fee):</label>
+							<span id="final_with_fee">0.00</span>
+						</div>
+					</div>
+
+					<!-- UPI Details -->
+					<div id="upi_details" class="payment-details" style="display:none;">
+						<div class="form-group">
+							<label>UPI Transaction ID:</label>
+							<input type="text" name="upi_ref" pattern="[a-zA-Z0-9]{12,}"
+								title="Enter valid UPI transaction ID">
+						</div>
+					</div>
+
+					<!-- Insurance/Mediclaim Details -->
+					<div id="insurance_details" class="payment-details" style="display:none;">
+						<div class="form-group">
+							<label>Policy/Card Number:</label>
+							<input type="text" name="policy_number" required>
+						</div>
+						<div class="form-group">
+							<label>Authorization Number:</label>
+							<input type="text" name="auth_number">
+						</div>
+					</div>
+
+					<!-- Split Payment Details -->
+					<div id="split_details" class="payment-details" style="display:none;">
+						<div class="split-container">
+							<div class="form-group">
+								<label>Cash Amount:</label>
+								<input type="number" name="split_cash" value="0" min="0" step="0.01"
+									onchange="updateSplitTotal()">
+							</div>
+							<div class="form-group">
+								<label>Card Amount:</label>
+								<input type="number" name="split_card" value="0" min="0" step="0.01"
+									onchange="updateSplitTotal()">
+							</div>
+							<div class="form-group">
+								<label>UPI Amount:</label>
+								<input type="number" name="split_upi" value="0" min="0" step="0.01"
+									onchange="updateSplitTotal()">
+							</div>
+							<div class="form-group">
+								<label>Split Total:</label>
+								<span id="split_total">0.00</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<button type="submit" class="btn-submit">Generate Bill</button>
+		</form>
+	</div>
+	<script>
+		function showConsultationCharge(select) {
+			const selectedOption = select.selectedOptions[0];
+			if (selectedOption.value) {
+				const charge = parseFloat(selectedOption.dataset.charge);
+				console.log(`Selected doctor's consultation charge: ₹${charge}`); // Debug log
+			}
+		}
+	</script>
+</body>
+
+</html>

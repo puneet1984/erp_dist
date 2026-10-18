@@ -1,0 +1,463 @@
+[
+    {
+        "timestamp": "2026-02-12 17:35:45",
+        "user_id": 1,
+        "master_item_id": 163,
+        "duplicate_ids": [
+            162
+        ],
+        "batch_transfers": [],
+        "transaction_updates": [],
+        "status": "failed",
+        "error": "Unknown column 'pti.transaction_item_id' in 'field list'",
+        "log_id": "merge_698dc219b0e2f0.44482200"
+    },
+    {
+        "timestamp": "2026-02-12 17:37:29",
+        "user_id": 1,
+        "master_item_id": 163,
+        "duplicate_ids": [
+            162
+        ],
+        "batch_transfers": [],
+        "transaction_updates": [],
+        "status": "failed",
+        "error": "Cannot delete or update a parent row: a foreign key constraint fails (`erp`.`stock_alert_logs`, CONSTRAINT `stock_alert_logs_ibfk_1` FOREIGN KEY (`item_id`) REFERENCES `pharmacy_items` (`item_id`))",
+        "log_id": "merge_698dc28178ea74.42994551"
+    },
+    {
+        "timestamp": "2026-02-12 17:38:31",
+        "user_id": 1,
+        "master_item_id": 163,
+        "duplicate_ids": [
+            162
+        ],
+        "batch_transfers": [
+            {
+                "batch_id": 199,
+                "batch_number": "EIF2513A",
+                "from_item_id": 162,
+                "to_item_id": 163
+            }
+        ],
+        "transaction_updates": [
+            {
+                "transaction_id": "PUR_6932d8b8102de7.74053695",
+                "batch_id": 199,
+                "batch_number": "EIF2513A",
+                "from_item_id": 162,
+                "to_item_id": 163
+            }
+        ],
+        "status": "success",
+        "error": null,
+        "log_id": "merge_698dc2bf47a492.90620616",
+        "rolled_back": true,
+        "rolled_back_at": "2026-02-12 17:42:45",
+        "rolled_back_by": 1
+    },
+    {
+        "timestamp": "2026-03-26 17:27:57",
+        "user_id": 1,
+        "master_item_id": 196,
+        "master_item_name": null,
+        "duplicate_ids": [
+            16
+        ],
+        "batch_transfers": [],
+        "transaction_updates": [],
+        "status": "failed",
+        "error": "Duplicate entry '196-DAM24023' for key 'pharmacy_batches.item_id'",
+        "log_id": "merge_69c51f458883d4.99767729"
+    },
+    {
+        "timestamp": "2026-03-26 17:28:33",
+        "user_id": 1,
+        "master_item_id": 196,
+        "master_item_name": null,
+        "duplicate_ids": [
+            16
+        ],
+        "batch_transfers": [],
+        "transaction_updates": [],
+        "status": "failed",
+        "error": "Duplicate entry '196-DAM24023' for key 'pharmacy_batches.item_id'",
+        "log_id": "merge_69c51f6967cd67.79629050"
+    },
+    {
+        "timestamp": "2026-03-26 17:28:43",
+        "user_id": 1,
+        "master_item_id": 196,
+        "master_item_name": null,
+        "duplicate_ids": [
+            16
+        ],
+        "batch_transfers": [],
+        "transaction_updates": [],
+        "status": "failed",
+        "error": "Duplicate entry '196-DAM24023' for key 'pharmacy_batches.item_id'",
+        "log_id": "merge_69c51f73585014.72930965"
+    },
+    {
+        "timestamp": "2026-03-26 17:32:50",
+        "user_id": 1,
+        "master_item_id": 196,
+        "master_item_name": null,
+        "duplicate_ids": [
+            16
+        ],
+        "batch_transfers": [],
+        "transaction_updates": [],
+        "status": "failed",
+        "error": "Duplicate entry '196-LOW_STOCK-9424844521-PENDING' for key 'stock_alert_logs.unique_pending_alert'",
+        "log_id": "merge_69c5206a076204.86179442"
+    },
+    {
+        "timestamp": "2026-03-26 17:34:09",
+        "user_id": 1,
+        "master_item_id": 196,
+        "master_item_name": "C Hop 100 Injection 1ml",
+        "duplicate_ids": [
+            16
+        ],
+        "batch_transfers": [
+            {
+                "batch_id": 130,
+                "batch_number": "DAM24023",
+                "from_item_id": 16,
+                "to_item_id": 196
+            },
+            {
+                "batch_id": 19,
+                "batch_number": "DFAG14",
+                "from_item_id": 16,
+                "to_item_id": 196
+            },
+            {
+                "batch_id": 19,
+                "batch_number": "DFAG14",
+                "from_item_id": 16,
+                "to_item_id": 196,
+                "action": "moved_batch_to_master"
+            },
+            {
+                "batch_id": 130,
+                "batch_number": "DAM24023",
+                "from_item_id": 16,
+                "to_item_id": 196,
+                "action": "merged_with_existing_batch",
+                "target_batch_id": 319
+            }
+        ],
+        "transaction_updates": [
+            {
+                "transaction_id": "PH_686a0ee4d9b791.83498460",
+                "batch_id": 130,
+                "batch_number": "DAM24023",
+                "from_item_id": 16,
+                "to_item_id": 196
+            },
+            {
+                "transaction_id": "PH_68a06c14284627.09512144",
+                "batch_id": 130,
+                "batch_number": "DAM24023",
+                "from_item_id": 16,
+                "to_item_id": 196
+            },
+            {
+                "transaction_id": "PH_68a1a5c126bb23.06804855",
+                "batch_id": 130,
+                "batch_number": "DAM24023",
+                "from_item_id": 16,
+                "to_item_id": 196
+            },
+            {
+                "transaction_id": "PH_68a30ef7787208.83116555",
+                "batch_id": 130,
+                "batch_number": "DAM24023",
+                "from_item_id": 16,
+                "to_item_id": 196
+            },
+            {
+                "transaction_id": "PH_68bac87798d931.80359208",
+                "batch_id": 130,
+                "batch_number": "DAM24023",
+                "from_item_id": 16,
+                "to_item_id": 196
+            },
+            {
+                "transaction_id": "PH_68bad41261f9d4.02715816",
+                "batch_id": 130,
+                "batch_number": "DAM24023",
+                "from_item_id": 16,
+                "to_item_id": 196
+            },
+            {
+                "transaction_id": "PH_68bbc9398a53d1.56946993",
+                "batch_id": 130,
+                "batch_number": "DAM24023",
+                "from_item_id": 16,
+                "to_item_id": 196
+            },
+            {
+                "transaction_id": "PH_68bd1faac49280.20424018",
+                "batch_id": 130,
+                "batch_number": "DAM24023",
+                "from_item_id": 16,
+                "to_item_id": 196
+            },
+            {
+                "transaction_id": "PH_68bd3f2653cea0.20071575",
+                "batch_id": 130,
+                "batch_number": "DAM24023",
+                "from_item_id": 16,
+                "to_item_id": 196
+            },
+            {
+                "transaction_id": "PH_68c68eb644ddb3.55683357",
+                "batch_id": 130,
+                "batch_number": "DAM24023",
+                "from_item_id": 16,
+                "to_item_id": 196
+            },
+            {
+                "transaction_id": "PH_68d275d1636642.79179083",
+                "batch_id": 130,
+                "batch_number": "DAM24023",
+                "from_item_id": 16,
+                "to_item_id": 196
+            },
+            {
+                "transaction_id": "PH_68d63e9bdec385.99479693",
+                "batch_id": 130,
+                "batch_number": "DAM24023",
+                "from_item_id": 16,
+                "to_item_id": 196
+            },
+            {
+                "transaction_id": "PH_68de317ad027e4.85481882",
+                "batch_id": 130,
+                "batch_number": "DAM24023",
+                "from_item_id": 16,
+                "to_item_id": 196
+            },
+            {
+                "transaction_id": "PH_692bde648ee655.05440845",
+                "batch_id": 130,
+                "batch_number": "DAM24023",
+                "from_item_id": 16,
+                "to_item_id": 196
+            },
+            {
+                "transaction_id": "PH_693fe1b59645e2.04767482",
+                "batch_id": 130,
+                "batch_number": "DAM24023",
+                "from_item_id": 16,
+                "to_item_id": 196
+            },
+            {
+                "transaction_id": "PH_6942463d11e085.60689870",
+                "batch_id": 130,
+                "batch_number": "DAM24023",
+                "from_item_id": 16,
+                "to_item_id": 196
+            },
+            {
+                "transaction_id": "PH_694a59f1591df6.52043500",
+                "batch_id": 130,
+                "batch_number": "DAM24023",
+                "from_item_id": 16,
+                "to_item_id": 196
+            },
+            {
+                "transaction_id": "PH_69956f9ea8edb3.25069434",
+                "batch_id": 130,
+                "batch_number": "DAM24023",
+                "from_item_id": 16,
+                "to_item_id": 196
+            },
+            {
+                "transaction_id": "PH_69b692d67a44a5.15203387",
+                "batch_id": 130,
+                "batch_number": "DAM24023",
+                "from_item_id": 16,
+                "to_item_id": 196
+            },
+            {
+                "transaction_id": "PH_69b93e2be47403.72037736",
+                "batch_id": 130,
+                "batch_number": "DAM24023",
+                "from_item_id": 16,
+                "to_item_id": 196
+            },
+            {
+                "transaction_id": "PH_680df99bad8904.51019936",
+                "batch_id": 19,
+                "batch_number": "DFAG14",
+                "from_item_id": 16,
+                "to_item_id": 196
+            },
+            {
+                "transaction_id": "PH_681ca0193575c2.30277523",
+                "batch_id": 19,
+                "batch_number": "DFAG14",
+                "from_item_id": 16,
+                "to_item_id": 196
+            },
+            {
+                "transaction_id": "PH_6841713131b085.51904804",
+                "batch_id": 19,
+                "batch_number": "DFAG14",
+                "from_item_id": 16,
+                "to_item_id": 196
+            },
+            {
+                "from_batch_id": 130,
+                "to_batch_id": 319,
+                "batch_number": "DAM24023",
+                "from_item_id": 16,
+                "to_item_id": 196,
+                "action": "transaction_items_repointed"
+            }
+        ],
+        "status": "success",
+        "error": null,
+        "log_id": "merge_69c520b91fbce4.78207858"
+    },
+    {
+        "timestamp": "2026-04-04 15:42:29",
+        "user_id": 1,
+        "master_item_id": 66,
+        "master_item_name": "Magneon Injection",
+        "duplicate_ids": [
+            187
+        ],
+        "batch_transfers": [
+            {
+                "batch_id": 276,
+                "batch_number": "SM370004",
+                "from_item_id": 187,
+                "to_item_id": 66
+            },
+            {
+                "batch_id": 276,
+                "batch_number": "SM370004",
+                "from_item_id": 187,
+                "to_item_id": 66,
+                "action": "moved_batch_to_master"
+            }
+        ],
+        "transaction_updates": [
+            {
+                "transaction_id": "PUR_699efa4666c053.06042126",
+                "batch_id": 276,
+                "batch_number": "SM370004",
+                "from_item_id": 187,
+                "to_item_id": 66
+            },
+            {
+                "transaction_id": "PH_69afc7795ecf70.51499441",
+                "batch_id": 276,
+                "batch_number": "SM370004",
+                "from_item_id": 187,
+                "to_item_id": 66
+            }
+        ],
+        "status": "success",
+        "error": null,
+        "log_id": "merge_69d0e40dbc77d7.00881451"
+    },
+    {
+        "timestamp": "2026-04-19 14:49:03",
+        "user_id": 1,
+        "master_item_id": 10,
+        "master_item_name": "R Hucog 6500iu Injection",
+        "duplicate_ids": [
+            184
+        ],
+        "batch_transfers": [
+            {
+                "batch_id": 263,
+                "batch_number": "B18725007",
+                "from_item_id": 184,
+                "to_item_id": 10
+            },
+            {
+                "batch_id": 263,
+                "batch_number": "B18725007",
+                "from_item_id": 184,
+                "to_item_id": 10,
+                "action": "moved_batch_to_master"
+            }
+        ],
+        "transaction_updates": [
+            {
+                "transaction_id": "PUR_698f3200e45771.03724667",
+                "batch_id": 263,
+                "batch_number": "B18725007",
+                "from_item_id": 184,
+                "to_item_id": 10
+            },
+            {
+                "transaction_id": "PH_69ce13097be224.35636300",
+                "batch_id": 263,
+                "batch_number": "B18725007",
+                "from_item_id": 184,
+                "to_item_id": 10
+            },
+            {
+                "transaction_id": "PH_69ce401c7ad383.62869896",
+                "batch_id": 263,
+                "batch_number": "B18725007",
+                "from_item_id": 184,
+                "to_item_id": 10
+            },
+            {
+                "transaction_id": "PH_69ce4cc91adb67.36695232",
+                "batch_id": 263,
+                "batch_number": "B18725007",
+                "from_item_id": 184,
+                "to_item_id": 10
+            }
+        ],
+        "status": "success",
+        "error": null,
+        "log_id": "merge_69e49e0756c919.80640035"
+    },
+    {
+        "timestamp": "2026-04-19 14:58:25",
+        "user_id": 1,
+        "master_item_id": 160,
+        "master_item_name": "Humog Hp 75 Injection",
+        "duplicate_ids": [
+            161
+        ],
+        "batch_transfers": [
+            {
+                "batch_id": 197,
+                "batch_number": "B18725003",
+                "from_item_id": 161,
+                "to_item_id": 160
+            },
+            {
+                "batch_id": 197,
+                "batch_number": "B18725003",
+                "from_item_id": 161,
+                "to_item_id": 160,
+                "action": "moved_batch_to_master"
+            }
+        ],
+        "transaction_updates": [
+            {
+                "transaction_id": "PUR_68e918914d5208.42344930",
+                "batch_id": 197,
+                "batch_number": "B18725003",
+                "from_item_id": 161,
+                "to_item_id": 160
+            }
+        ],
+        "status": "success",
+        "error": null,
+        "log_id": "merge_69e4a039035a42.25468286"
+    }
+]

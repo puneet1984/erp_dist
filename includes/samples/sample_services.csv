@@ -1,0 +1,11 @@
+Service Name,Category,Base Charge
+General Consultation,CONSULTATION,0
+X-Ray Chest,RADIOLOGY,500
+Complete Blood Count,PATHOLOGY,350
+ECG,DIAGNOSTIC,300
+Dressing - Small,PROCEDURE,100
+Physiotherapy Session,PHYSIOTHERAPY,400
+Emergency Consultation,CONSULTATION,0
+X-Ray Spine,RADIOLOGY,1000
+Blood Sugar,PATHOLOGY,100
+Suture Removal,PROCEDURE,200

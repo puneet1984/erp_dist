@@ -1,0 +1,619 @@
+<?php
+define('SECURE_ACCESS', true);
+require_once '../../includes/core.php';
+
+// Session checks
+if (!isset($_SESSION['user_id'])) {
+    header('Location: /erp/modules/auth/login.php');
+    exit;
+}
+
+function checkDuplicate($field, $value, $conn)
+{
+    if (empty($value)) {
+        return false;
+    }
+
+    $stmt = $conn->prepare("SELECT patient_id, name, age, gender, contact, 
+                                  aadhar_number, abha_id, ayushmaan_id 
+                           FROM patients 
+                           WHERE {$field} = ?");
+    $stmt->bind_param('s', $value);
+    $stmt->execute();
+
+    return $stmt->get_result()->fetch_assoc();
+}
+
+if ('POST' === $_SERVER['REQUEST_METHOD']) {
+    $conn = getDbConnection();
+    $conn->begin_transaction();
+
+    try {
+        // Lock the table for ID generation
+        $conn->query('LOCK TABLES patients WRITE');
+
+        // Get next ID - Changed to handle BIGINT properly
+        $stmt = $conn->prepare('SELECT MAX(patient_id) as max_id FROM patients FOR UPDATE');
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_assoc();
+        $next_id = ($result['max_id'] ?? 0) + 1; // Now storing as number, not padded string
+
+        $errors = [];
+
+        // Sanitize and validate inputs
+        $firstName = sanitizeInput($_POST['first_name']);
+        $middleName = sanitizeInput($_POST['middle_name']);
+        $relation = sanitizeInput($_POST['relation']);
+        $lastName = sanitizeInput($_POST['last_name']);
+
+        // Format full name
+        $name = $firstName;
+        if ($middleName) {
+            $name .= " ({$relation} {$middleName})";
+        }
+        if ($lastName) {
+            $name .= " {$lastName}";
+        }
+
+        $age = sanitizeInput($_POST['age']);
+        $gender = sanitizeInput($_POST['gender']);
+        $contact = sanitizeInput($_POST['contact']);
+        $address = sanitizeInput($_POST['address']);
+        $payment_type_id = (int) $_POST['payment_type_id']; // Changed from payment_type
+        $aadhar = sanitizeInput($_POST['aadhar_number'] ?? '');
+        $abha = sanitizeInput($_POST['abha_id'] ?? '');
+        $ayushmaan = sanitizeInput($_POST['ayushmaan_id'] ?? '');
+        $company_name = (2 === $payment_type_id) ? sanitizeInput($_POST['company_name']) : null; // 2 is COMPANY_CREDIT
+
+        // Validation checks
+        if (empty($name)) {
+            $errors[] = 'Name is required';
+        }
+
+        if (!validateAge($age)) {
+            $errors[] = 'Invalid age';
+        }
+
+        if (!validateMobile($contact)) {
+            $errors[] = 'Invalid mobile number (must be 10 digits starting with 6-9)';
+        }
+
+        // Additional validations
+        if (!empty($aadhar) && !validateAadhar($aadhar)) {
+            $errors[] = 'Invalid Aadhar number';
+        }
+        if (!empty($abha) && !validateAbha($abha)) {
+            $errors[] = 'Invalid ABHA ID';
+        }
+        if (!empty($ayushmaan) && !validateAyushmaan($ayushmaan)) {
+            $errors[] = 'Invalid Ayushmaan ID';
+        }
+
+        if (!empty($errors)) {
+            echo json_encode(['status' => 'error', 'message' => implode(', ', $errors)]);
+            exit;
+        }
+
+        // Check for duplicates
+        $duplicate = false;
+        $duplicate_data = [];
+
+        if (!empty($aadhar)) {
+            if ($found = checkDuplicate('aadhar_number', $aadhar, $conn)) {
+                $duplicate = true;
+                $duplicate_data['aadhar'] = $found;
+            }
+        }
+
+        if (!empty($abha)) {
+            if ($found = checkDuplicate('abha_id', $abha, $conn)) {
+                $duplicate = true;
+                $duplicate_data['abha'] = $found;
+            }
+        }
+
+        if (!empty($ayushmaan)) {
+            if ($found = checkDuplicate('ayushmaan_id', $ayushmaan, $conn)) {
+                $duplicate = true;
+                $duplicate_data['ayushmaan'] = $found;
+            }
+        }
+
+        if ($duplicate) {
+            echo json_encode([
+                'status' => 'duplicate',
+                'message' => 'Duplicate records found',
+                'data' => $duplicate_data,
+            ]);
+            exit;
+        }
+
+        // Handle company account if payment type is COMPANY_CREDIT
+        if (2 === $payment_type_id) { // COMPANY_CREDIT
+            // Check if new company
+            if (isset($_POST['new_company_name']) && !empty($_POST['new_company_name'])) {
+                $company_name = sanitizeInput($_POST['new_company_name']);
+
+                // Create new company account with default terms
+                $stmt = $conn->prepare("INSERT INTO company_accounts 
+                    (company_name, credit_limit, payment_days, status) 
+                    VALUES (?, 50000, 30, 'ACTIVE')
+                    ON DUPLICATE KEY UPDATE company_name = VALUES(company_name)");
+
+                $stmt->bind_param('s', $company_name);
+                $stmt->execute();
+            } else {
+                $company_name = sanitizeInput($_POST['company_name']);
+
+                // Verify company exists
+                $stmt = $conn->prepare('SELECT company_id, status FROM company_accounts WHERE company_name = ?');
+                $stmt->bind_param('s', $company_name);
+                $stmt->execute();
+                $company = $stmt->get_result()->fetch_assoc();
+
+                if (!$company) {
+                    // Auto-create company if doesn't exist
+                    $stmt = $conn->prepare("INSERT INTO company_accounts 
+                        (company_name, credit_limit, payment_days, status) 
+                        VALUES (?, 50000, 30, 'ACTIVE')");
+
+                    $stmt->bind_param('s', $company_name);
+                    $stmt->execute();
+                } elseif ('ACTIVE' !== $company['status']) {
+                    throw new Exception('Company account is '.$company['status']);
+                }
+            }
+        }
+
+        // Prepare empty values to pass by reference
+        $aadhar_val = !empty($aadhar) ? $aadhar : null;
+        $abha_val = !empty($abha) ? $abha : null;
+        $ayushmaan_val = !empty($ayushmaan) ? $ayushmaan : null;
+
+        $stmt = $conn->prepare('INSERT INTO patients (
+            patient_id, name, age, gender, contact, address, city, state,
+            payment_type_id, company_name, aadhar_number, abha_id, ayushmaan_id
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+
+        $stmt->bind_param(
+            'isisssssissss',
+            $next_id,
+            $name,
+            $age,
+            $gender,
+            $contact,
+            $address,
+            $_POST['city'],    // New field
+            $_POST['state'],   // New field
+            $payment_type_id,
+            $company_name,
+            $aadhar_val,
+            $abha_val,
+            $ayushmaan_val
+        );
+
+        if ($stmt->execute()) {
+            // Get next available ID after insertion (simplified)
+            $stmt = $conn->prepare('SELECT MAX(CAST(patient_id AS UNSIGNED)) as max_id FROM patients');
+            $stmt->execute();
+            $result = $stmt->get_result()->fetch_assoc();
+            $next_available_id = ($result['max_id'] ?? 0) + 1; // Now storing as number, not padded string
+
+            $conn->commit();
+            $conn->query('UNLOCK TABLES');
+            echo json_encode([
+                'status' => 'success',
+                'patient_id' => $next_id, // Sending as number
+                'next_patient_id' => $next_available_id, // Now receiving as number, not padded string
+            ]);
+        } else {
+            throw new Exception($conn->error);
+        }
+
+    } catch (Exception $e) {
+        $conn->rollback();
+        $conn->query('UNLOCK TABLES');
+        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+    } finally {
+        // Ensure tables are unlocked even if there's an error
+        $conn->query('UNLOCK TABLES');
+    }
+    exit;
+}
+
+$conn = getDbConnection();
+$stmt = $conn->prepare('SELECT MAX(patient_id) as max_id FROM patients');
+$stmt->execute();
+$result = $stmt->get_result()->fetch_assoc();
+$initial_next_id = ($result['max_id'] ?? 0) + 1; // Store as number
+
+// Modify the company dropdown to fetch from company_accounts table
+$companies = $conn->query("SELECT company_name, status 
+                          FROM company_accounts 
+                          WHERE status = 'ACTIVE' 
+                          ORDER BY company_name");
+
+?>
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Add New Patient</title>
+	<link rel="stylesheet" href="../../assets/css/style.css">
+	<style>
+		body {
+			margin: 0;
+			padding: 20px;
+			background: #f5f5f5;
+		}
+
+		/* Main content area */
+		.container {
+			background: #fff;
+			padding: 20px;
+			border-radius: 4px;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+		}
+	</style>
+</head>
+
+<body>
+	<?php require_once '../../includes/simple_action_bar.php'; ?>
+
+	<div class="container">
+		<h2>Add New Patient</h2>
+		<form id="patientForm" onsubmit="validateForm(event)">
+			<!-- Basic Information -->
+			<div class="form-section">
+				<h3>Basic Information</h3>
+				<div class="form-row">
+					<div class="form-group">
+						<label>First Name:</label>
+						<input type="text" name="first_name" required maxlength="30">
+					</div>
+					<div class="form-group" style="display: flex; gap: 10px;">
+						<div>
+							<label>Relation</label>
+							<select name="relation" class="input-xs" onchange="updateGender(this.value)">
+								<option value="S/O">S/O</option>
+								<option value="W/O">W/O</option>
+								<option value="D/O">D/O</option>
+							</select>
+						</div>
+						<div>
+							<label>Name:</label>
+							<input type="text" name="middle_name" maxlength="30" required>
+						</div>
+					</div>
+					<div class="form-group">
+						<label>Last Name:</label>
+						<input type="text" name="last_name" maxlength="30">
+					</div>
+				</div>
+				<div class="form-row auto-spacing">
+					<div class="form-group">
+						<label>Date of Birth:</label>
+						<input type="date" name="dob" onchange="calculateAge(this.value)">
+					</div>
+					<div class="form-group">
+						<label>Age (in years):</label>
+						<input type="number" name="age" required min="0" max="110" step="0.1"
+							title="Enter age (use decimal for months, e.g., 1.5 for 1.5 years)" placeholder="e.g., 1.5">
+					</div>
+					<div class="form-group">
+						<label>Gender:</label>
+						<select name="gender" required>
+							<option value="">Select</option>
+							<option value="M">Male</option>
+							<option value="F">Female</option>
+							<option value="O">Others</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label>Mobile Number:</label>
+						<input type="tel" name="contact" required pattern="[6-9][0-9]{9}"
+							title="10 digits mobile number starting with 6-9" maxlength="10">
+					</div>
+				</div>
+				<div class="form-group full">
+					<label>Address:</label>
+					<textarea name="address"></textarea>
+				</div>
+				<div class="form-row">
+					<div class="form-group half">
+						<label>City:</label>
+						<input type="text" name="city" class="input-md" maxlength="50">
+					</div>
+					<div class="form-group half">
+						<label>State:</label>
+						<select name="state" class="input-md">
+							<option value="">Select State/UT</option>
+							<?php
+                            $states = [
+                                'Madhya Pradesh', // Moved to top for better visibility
+                                'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar',
+                                'Chhattisgarh', 'Delhi', 'Goa', 'Gujarat', 'Haryana',
+                                'Himachal Pradesh', 'Jammu & Kashmir', 'Jharkhand',
+                                'Karnataka', 'Kerala', 'Maharashtra',
+                                'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha',
+                                'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Tripura',
+                                'Telangana', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
+                                'Jammu & Kashmir', 'Ladakh (UT)', 'Andaman & Nicobar (UT)', 'Chandigarh (UT)',
+                                'Dadra & Nagar Haveli (UT)', 'Daman & Diu (UT)',
+                                'Lakshadweep (UT)', 'Puducherry (UT)',
+                            ];
+foreach ($states as $state_name) {
+    $selected = ('Madhya Pradesh' === $state_name) ? 'selected' : '';
+    echo "<option value=\"{$state_name}\" {$selected}>{$state_name}</option>";
+}
+?>
+						</select>
+					</div>
+				</div>
+			</div>
+
+			<!-- Payment Information -->
+			<div class="form-section">
+				<h3>Payment Information</h3>
+				<div class="form-group">
+					<label>Payment Type:</label>
+					<select name="payment_type_id" id="payment_type" onchange="toggleCompanyField()">
+						<?php
+                        $conn = getDbConnection();
+$payment_types = $conn->query('SELECT * FROM payment_types ORDER BY type_name');
+while ($type = $payment_types->fetch_assoc()) {
+    $selected = (1 == $type['payment_type_id']) ? 'selected' : ''; // CASH is ID 1
+    echo "<option value='".$type['payment_type_id']."' ".$selected.'>'.
+         htmlspecialchars($type['type_name']).'</option>';
+}
+?>
+					</select>
+				</div>
+
+				<div class="form-group" id="company_field" style="display:none;">
+					<label>Company Name:</label>
+					<select name="company_name" id="company_select" onchange="handleCompanySelect(this.value)">
+						<option value="">Select Company</option>
+						<?php while ($company = $companies->fetch_assoc()) { ?>
+						<option
+							value="<?php echo htmlspecialchars($company['company_name']); ?>">
+							<?php echo htmlspecialchars($company['company_name']); ?>
+						</option>
+						<?php } ?>
+						<option value="new">+ Add New Company</option>
+					</select>
+					<input type="text" id="new_company_name" name="new_company_name" style="display:none;"
+						maxlength="100" placeholder="Enter new company name">
+				</div>
+			</div>
+
+			<!-- ID Information -->
+			<div class="form-section">
+				<h3>ID Information</h3>
+				<div class="form-row">
+					<div class="form-group third">
+						<label>Aadhar Number: (Optional)</label>
+						<input type="text" name="aadhar_number" maxlength="12" pattern="\d{12}"
+							title="12 digit Aadhar number" placeholder="12 digit Aadhar number">
+					</div>
+					<div class="form-group third">
+						<label>ABHA ID: (Optional)</label>
+						<input type="text" name="abha_id" maxlength="14" pattern="\d{14}" title="14 digit ABHA ID"
+							placeholder="14 digit ABHA ID">
+					</div>
+					<div class="form-group third">
+						<label>PM-JAY ID: (Optional)</label>
+						<input type="text" name="ayushmaan_id" maxlength="20" pattern="[A-Za-z0-9]{8,20}"
+							title="PM-JAY ID (alphanumeric, 8-20 characters)" placeholder="Enter PM-JAY ID"
+							style="text-transform: uppercase;">
+					</div>
+				</div>
+			</div>
+
+			<div class="form-row" style="justify-content: space-between; align-items: center;">
+				<button type="submit">Register Patient</button>
+				<div class="next-id-display">
+					<label>Next Patient ID:</label>
+					<span
+						id="nextPatientId">MNH<?php echo str_pad($initial_next_id, 8, '0', STR_PAD_LEFT); ?></span>
+				</div>
+			</div>
+		</form>
+	</div>
+
+	<script>
+		// Form validation and submission
+		function validateForm(e) {
+			e.preventDefault();
+			const form = e.target;
+			const mobile = form.contact.value.trim();
+			const age = parseFloat(form.age.value.trim());
+
+			// Updated age validation
+			if (isNaN(age) || age < 0 || age > 110) {
+				alert('Invalid age (must be between 0 and 110)');
+				form.age.focus();
+				return false;
+			}
+
+			// Client-side validation
+			if (!mobile.match(/^[6-9]\d{9}$/)) {
+				alert('Invalid mobile number (must be 10 digits starting with 6-9)');
+				form.contact.focus();
+				return false;
+			}
+
+			const aadhar = form.aadhar_number.value.trim();
+			const abha = form.abha_id.value.trim();
+			const ayushmaan = form.ayushmaan_id.value.trim().toUpperCase();
+
+			if (aadhar && !aadhar.match(/^\d{12}$/)) {
+				alert('Invalid Aadhar number (must be 12 digits)');
+				form.aadhar_number.focus();
+				return false;
+			}
+
+			if (abha && !abha.match(/^\d{14}$/)) {
+				alert('Invalid ABHA ID (must be 14 digits)');
+				form.abha_id.focus();
+				return false;
+			}
+
+			if (ayushmaan && !ayushmaan.match(/^[A-Z0-9]{8,20}$/)) {
+				alert('Invalid PM-JAY ID (must be 8-20 alphanumeric characters)');
+				form.ayushmaan_id.focus();
+				return false;
+			}
+
+			// If validation passes, submit form
+			submitForm(form);
+		}
+
+		function submitForm(form) {
+			const formData = new FormData(form);
+
+			// Handle company name
+			if (formData.get('payment_type_id') === '2') {
+				const newCompanyInput = document.getElementById('new_company_name');
+				if (newCompanyInput.style.display === 'block') {
+					formData.set('company_name', newCompanyInput.value);
+				}
+			}
+
+			fetch('add_patient.php', {
+					method: 'POST',
+					body: formData
+				})
+				.then(response => response.json())
+				.then(data => {
+					if (data.status === 'duplicate') {
+						showDuplicateDialog(data.data);
+					} else if (data.status === 'success') {
+						const currentId = formatPatientId(data.patient_id);
+						const nextId = formatPatientId(data.next_patient_id);
+						alert('Patient registered successfully with ID: ' + currentId);
+						document.getElementById('nextPatientId').textContent = nextId;
+						form.reset();
+					} else {
+						alert('Error: ' + data.message);
+					}
+				});
+		}
+
+		function showDuplicateDialog(duplicates) {
+			let message = 'Found existing patient(s):\n\n';
+
+			for (let type in duplicates) {
+				const patient = duplicates[type];
+				message += `Match found by ${type.toUpperCase()}:\n`;
+				message += `Patient ID: ${formatPatientId(patient.patient_id)}\n`;
+				message += `Name: ${patient.name}\n`;
+				message += `Age/Gender: ${patient.age}/${patient.gender}\n`;
+				message += `Contact: ${patient.contact}\n\n`;
+			}
+
+			message += 'Do you want to:\n';
+			message += '1. View existing patient record\n';
+			message += '2. Create new patient anyway\n';
+			message += '3. Cancel';
+
+			const choice = confirm(message);
+			if (choice) {
+				// Redirect to view patient page with the first found patient ID
+				const firstPatient = duplicates[Object.keys(duplicates)[0]];
+				window.location.href = `view_patient.php?id=${firstPatient.patient_id}`;
+			}
+		}
+
+		function formatPatientId(id) {
+			// Format numeric ID to padded string
+			return 'MNH' + String(id).padStart(8, '0');
+		}
+
+		document.addEventListener('DOMContentLoaded', function() {
+			updateGender(document.querySelector('select[name="relation"]').value);
+			toggleCompanyField();
+		});
+
+		function toggleCompanyField() {
+			const paymentType = document.getElementById('payment_type').value;
+			const companyField = document.getElementById('company_field');
+			const companySelect = document.getElementById('company_select');
+			const newCompanyInput = document.getElementById('new_company_name');
+
+			if (paymentType === '2') { // COMPANY_CREDIT
+				companyField.style.display = 'block';
+				companySelect.required = true;
+			} else {
+				companyField.style.display = 'none';
+				companySelect.required = false;
+				companySelect.value = '';
+				newCompanyInput.value = '';
+				newCompanyInput.style.display = 'none';
+			}
+		}
+
+		function handleCompanySelect(value) {
+			const newCompanyInput = document.getElementById('new_company_name');
+			const companySelect = document.getElementById('company_select');
+
+			if (value === 'new') {
+				newCompanyInput.style.display = 'block';
+				newCompanyInput.required = true;
+				companySelect.name = ''; // Remove name attribute to prevent form submission
+				newCompanyInput.name = 'new_company_name'; // Add name attribute for form submission
+			} else {
+				newCompanyInput.style.display = 'none';
+				newCompanyInput.required = false;
+				companySelect.name = 'company_name'; // Restore name attribute
+				newCompanyInput.name = ''; // Remove name attribute
+			}
+		}
+
+		function updateGender(relation) {
+			const genderSelect = document.querySelector('select[name="gender"]');
+			if (relation === 'S/O') {
+				genderSelect.value = 'M';
+			} else if (relation === 'W/O' || relation === 'D/O') {
+				genderSelect.value = 'F';
+			}
+		}
+
+		function calculateAge(dob) {
+			if (!dob) return;
+
+			const birthDate = new Date(dob);
+			const today = new Date();
+
+			// Check if birthdate is in future
+			if (birthDate > today) {
+				alert('Date of birth cannot be in future');
+				document.querySelector('input[name="dob"]').value = '';
+				document.querySelector('input[name="age"]').value = '';
+				return;
+			}
+
+			// Calculate total days between dates
+			const diffTime = today - birthDate;
+			const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+			const totalMonths = Math.floor(totalDays / 30.44); // Average month length
+			const totalYears = totalMonths / 12; // Convert months to years
+
+
+			let decimalAge;
+			if (totalYears < 5) {
+				// If age is less than 5 year, calculate in years using days
+				decimalAge = Math.round((totalDays / 365) * 10) / 10;
+			} else {
+				// For ages 5 years and above, calculate based on total years
+				decimalAge = Math.round(totalYears);
+			}
+
+			console.log(decimalAge);
+
+			document.querySelector('input[name="age"]').value = decimalAge;
+		}
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,348 @@
+/* Variables */
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --border-color: #dee2e6;
+}
+
+/* Base Layout */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0.5rem;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* Form Elements */
+.form-group {
+    margin-bottom: 0.05rem;
+}
+
+.form-group input,
+.form-group select,
+.select2-container--default .select2-selection--single {
+    height: 28px !important;
+    padding: 2px 6px !important;
+    font-size: 0.85rem;
+}
+
+/* Medicine Search Container */
+.medicine-search-container {
+    background: #f8f9fa;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px dashed #ccc;
+}
+
+.medicine-search-container small {
+    display: block;
+    margin-top: 5px;
+}
+
+/* Form Grid Layouts */
+.form-row {
+    display: grid;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: var(--light-color);
+    border-radius: 4px;
+}
+
+/* Document Info Row */
+.document-row {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+/* Medicine Details Grid */
+.medicine-details {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+/* Batch Details Grid */
+.batch-details {
+    grid-template-columns: repeat(5, 1fr);
+}
+
+/* Medicine Only Fields Grid */
+.medicine-only-fields {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+/* Common Grid Form Styles */
+.form-row .form-group {
+    margin: 0;
+}
+
+.form-row .form-group input,
+.form-row .form-group select {
+    width: 100%;
+    height: 35px !important;
+    padding: 5px 10px !important;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.form-row .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--dark-color);
+}
+
+/* Input Groups in Forms */
+.form-row .input-group {
+    display: flex;
+    align-items: center;
+    height: 35px;
+}
+
+.form-row .input-group input {
+    width: calc(100% - 30px);  /* Adjust for the symbol width */
+    text-align: right;
+    padding-right: 5px;
+}
+
+.form-row .input-group .input-symbol {
+    width: 30px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--light-color);
+    border: 1px solid var(--border-color);
+    border-left: none;
+    border-radius: 0 4px 4px 0;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1200px) {
+    .document-row,
+    .medicine-details {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .batch-details {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .form-row,
+    .document-row,
+    .medicine-details,
+    .batch-details,
+    .medicine-only-fields {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Medicine Header and Rows */
+.medicine-header,
+.medicine-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1fr 0.5fr;
+    gap: 10px;
+    padding: 8px;
+    align-items: center;
+}
+
+.medicine-header {
+    background: var(--light-color);
+    font-weight: bold;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.medicine-row {
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Medicine Entry Row */
+.medicine-entry-row {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1.5fr 1fr 0.8fr 1fr 1fr 1fr 0.8fr;
+    gap: 10px;
+    align-items: start;
+    padding: 15px;
+    background: var(--light-color);
+    border-radius: 4px;
+}
+
+.medicine-entry-row .form-group {
+    margin: 0;
+}
+
+.medicine-entry-row .form-group input,
+.medicine-entry-row .form-group select,
+.medicine-entry-row .select2-container .select2-selection--single {
+    width: 100%;
+    height: 35px !important;
+    padding: 5px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.medicine-entry-row .select2-container {
+    width: 100% !important;
+}
+
+.medicine-entry-row .btn-add {
+    width: 100%;
+    height: auto;
+    margin-top: 5px; /* To align with inputs that have labels */
+}
+
+/* Responsive adjustments for medicine entry */
+@media (max-width: 1200px) {
+    .medicine-entry-row {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .medicine-entry-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .medicine-entry-row .btn-add {
+        margin-top: 0;
+    }
+}
+
+/* Buttons */
+.btn-add {
+    background-color: var(--success-color);
+    color: white;
+    padding: 4px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    height: 32px;
+}
+
+.btn-submit {
+    background-color: var(--success-color);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Billing Summary */
+.billing-summary {
+    width: 100%;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 15px;
+    background: var(--light-color);
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.billing-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    padding: 15px;
+    background: white;
+    border-radius: 4px;
+    margin-bottom: 0;
+}
+
+.billing-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+/* Final Amount Row */
+.final-amount-row {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: var(--light-color);
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.final-amount-row .total-amount {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.final-amount-row label {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-right: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .billing-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .final-amount-row {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .final-amount-row .btn-submit {
+        width: 100%;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .form-row,
+    .batch-details,
+    .medicine-only-fields {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .medicine-details {
+        grid-template-columns: 1fr;
+    }
+
+    .medicine-header,
+    .medicine-row {
+        grid-template-columns: 1fr;
+        text-align: left;
+        padding: 10px;
+    }
+
+    .billing-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .billing-item {
+        width: 100%;
+    }
+}

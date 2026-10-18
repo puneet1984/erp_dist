@@ -1,0 +1,127 @@
+<?php
+
+define('SECURE_ACCESS', true);
+require_once '../core.php';
+
+header('Content-Type: application/json');
+
+function searchMedicinesfromJSON($search_term)
+{
+    error_log("Searching for medicine in JSON: " . $search_term);
+    $result = [];
+    $first_char = strtoupper(substr($search_term, 0, 1));
+
+    $file_path = '../../database/medicine_data/';
+    if (is_numeric($first_char)) {
+        $file_path .= 'numbers.json';
+    } elseif (ctype_alpha($first_char)) {
+        $file_path .= $first_char . '.json';
+    } else {
+        error_log("Invalid search term first character");
+        return ['results' => []];
+    }
+
+    if (file_exists($file_path)) {
+        $medicines = json_decode(file_get_contents($file_path), true);
+        foreach ($medicines as $medicine) {
+            $medicine_name = is_array($medicine['name']) ? $medicine['name'][0] : $medicine['name'];
+            if (stripos($medicine_name, $search_term) !== false) {
+                $cleaned_name = cleanMedicineName($medicine_name);
+                $result[] = [
+                    'id' => $medicine_name,
+                    'text' => $cleaned_name,
+                    'active_ingredient' => $medicine['activeIngredient'] ?? '',
+                    'dosage_form' => $medicine['dosageForm'] ?? '',
+                    'manufacturer' => $medicine['manufacturer'] ?? ''
+                ];
+            }
+        }
+    }
+    return ['results' => $result];
+}
+
+function searchMedicinesFromDB($search, $limit = 10)
+{
+    $conn = getDbConnection();
+    $search = $conn->real_escape_string($search);
+
+    $sql = "SELECT 
+                i.item_id, 
+                i.name, 
+                i.manufacturer, 
+                i.active_ingredient, 
+                i.dosage_form,
+                i.category,
+                COALESCE(SUM(b.current_quantity), 0) as total_stock,
+                GROUP_CONCAT(
+                    CONCAT(b.batch_number, ':', b.current_quantity, ':', 
+                          DATE_FORMAT(b.expiry_date, '%Y-%m-%d'), ':', b.retail_price)
+                    SEPARATOR '|'
+                ) as batch_details
+            FROM pharmacy_items i 
+            LEFT JOIN pharmacy_batches b ON i.item_id = b.item_id
+            WHERE (i.name LIKE ? OR i.active_ingredient LIKE ?)
+            GROUP BY i.item_id
+            HAVING total_stock >= 0
+            ORDER BY i.name
+            LIMIT ?";
+
+    $stmt = $conn->prepare($sql);
+    $searchParam = "%$search%";
+    $stmt->bind_param("ssi", $searchParam, $searchParam, $limit);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+    $medicines = array();
+
+    while ($row = $result->fetch_assoc()) {
+        $medicines[] = array(
+            'id' => $row['item_id'],
+            'text' => $row['name'],
+            'manufacturer' => $row['manufacturer'],
+            'active_ingredient' => $row['active_ingredient'],
+            'dosage_form' => $row['dosage_form'],
+            'category' => $row['category'],
+            'stock' => $row['total_stock'],
+            'batch_details' => $row['batch_details']
+        );
+    }
+    return ['results' => $medicines];
+}
+
+function cleanMedicineName($medicine_name)
+{
+    $last_space_pos = strrpos($medicine_name, ' ');
+    if ($last_space_pos === false) {
+        return $medicine_name;
+    }
+    return trim(substr($medicine_name, 0, $last_space_pos));
+}
+
+// Handle the AJAX request with type parameter
+if (isset($_GET['q'])) {
+    $type = $_GET['type'] ?? 'sale'; // Default to sale behavior
+
+    if ($type === 'purchase') {
+        // For purchases: Search both JSON and DB
+        $jsonResults = searchMedicinesfromJSON($_GET['q']);
+        $dbResults = searchMedicinesFromDB($_GET['q']);
+
+        // Merge results, prioritizing DB results
+        $dbMedicineNames = array_column($dbResults['results'], 'text');
+        $mergedResults = $dbResults['results'];
+
+        foreach ($jsonResults['results'] as $jsonMedicine) {
+            // Only add if not already in DB results
+            if (!in_array($jsonMedicine['text'], $dbMedicineNames)) {
+                $mergedResults[] = $jsonMedicine;
+            }
+        }
+
+        echo json_encode(['results' => array_slice($mergedResults, 0, 10)]);
+    } else {
+        // For sales: Only search DB
+        echo json_encode(searchMedicinesFromDB($_GET['q']));
+    }
+    exit;
+}
